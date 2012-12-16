@@ -1,0 +1,46 @@
+<apex:component controller="DialogEdit" allowDML="true" >
+    <apex:attribute name="parameters" description="" type="DialogEditParameters" assignTo="{!parameters}" />
+    <apex:attribute name="reRenderAfterSave" description="" type="String" />
+    <apex:attribute name="reRenderCancel" description="" type="String" />
+    <apex:includeScript value="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js" />
+    <apex:includeScript value="//ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" />
+    <apex:stylesheet value="//ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/redmond/jquery-ui.css" />
+    <script type="text/javascript">
+        var DialogEdit;
+        if (!DialogEdit) {
+            DialogEdit = {};
+        }
+    </script>
+    <apex:outputPanel id="container" >
+        <apex:outputPanel id="panel" rendered="{! NOT(ISNULL(dialogRecord))}" style="display:none;">
+            <apex:pageMessages />
+            <apex:form >
+                <apex:pageBlock >
+                    <apex:pageBlockButtons >
+                        <apex:commandButton value="Save" action="{!save}" onclick="DialogEdit.dialog.dialog('destroy')" reRender="{!reRenderAfterSave},container" />
+                        <apex:commandButton value="Cancel" action="{!cancel}" onclick="DialogEdit.dialog.dialog('destroy')" immediate="true" reRender="{!reRenderCancel},container" />
+                    </apex:pageblockButtons>
+                    <apex:pageBlockSection columns="1">
+                        <apex:repeat value="{!FIELDS}" var="f">
+                            <apex:inputField value="{!dialogRecord[f['describe'].name]}" />
+                        </apex:repeat>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+                <apex:actionFunction name="DialogEdit.cancel" immediate="true" action="{!cancel}" reRender="{!reRenderCancel},container" />
+            </apex:form>
+        </apex:outputPanel>
+        <script type="text/javascript">
+            (function (global, $) {
+                var el = document.getElementById('{!$Component.panel}');
+                DialogEdit.dialog = jQuery(el).dialog({
+                    modal: true,
+                    width: 600,
+                    close: function (event, ui) {
+                        DialogEdit.dialog.dialog('destroy');
+                        DialogEdit.cancel();
+                    }
+                });
+            }(this, jQuery));
+        </script>
+    </apex:outputPanel>
+</apex:component>
